@@ -1,6 +1,6 @@
 from django.contrib import admin
-from django.conf.urls import include, url
-from django.urls import path 
+from django.conf.urls import include, re_path
+from django.urls import path
 from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
 
@@ -9,9 +9,10 @@ API_DESCRIPTION = 'A Web API for creating and viewing highlighted code snippets.
 schema_view = get_schema_view(title=API_TITLE)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    url(r'^', include('project.urls')),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^schema/$', schema_view),
-    url(r'^docs/', include_docs_urls(title=API_TITLE, description=API_DESCRIPTION))
+    re_path('^admin/', admin.site.urls),
+
+    re_path(r'^', include('project.urls')),
+    re_path(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    re_path(r'^schema/$', schema_view),
+    re_path(r'^docs/', include_docs_urls(title=API_TITLE, description=API_DESCRIPTION))
 ]

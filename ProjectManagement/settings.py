@@ -121,8 +121,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
 REST_FRAMEWORK = {
+    'DATETIME_FORMAT': "%Y-%m-%dT%H:%M",
+
     'PAGE_SIZE': 10,
     'DEFAULT_PAGINATION_CLASS':
     'rest_framework.pagination.PageNumberPagination',
