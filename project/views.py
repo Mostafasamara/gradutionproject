@@ -1,14 +1,19 @@
 from django.contrib.auth.models import User
 from rest_framework import permissions, renderers, viewsets
 from rest_framework.decorators import action
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from itertools import chain
-from .models import Project , Task , Group
-from .permissions import IsOwnerOrReadOnly
-from .serializers import ProjectSerializer, UserSerializer,TaskSerializer , GroupSerializer
+from django_filters import rest_framework as filters
+from rest_framework import mixins, generics
+# from django_filters.rest_framework import DjangoFilterBackend
+from .models import Project , Task , Group , UserProfile
+from .permissions import IsOwnerOrReadOnly ,  IsMember
+from .serializers import ProjectSerializer, UserSerializer,TaskSerializer , GroupSerializer,UserProfileSerializer
 from rest_framework.decorators import action
 from django.db.models import Q
-from itertools import chain
+# from itertools import chain
+from functools import partial
 
 class ProjectViewSet(viewsets.ModelViewSet):
     """
@@ -39,22 +44,19 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     Additionally we also provide an extra `highlight` action.
     """
+    permission_classes = [
+        permissions.IsAuthenticated,
+        # IsMember,
+         ]
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = (
-        permissions.IsAuthenticated, )
-
-    def get_queryset(self):
-        queryset = self.queryset
-        query_set = queryset.filter(owner=self.request.user)
-        return query_set
-
-
+    filter_backends = [filters.DjangoFilterBackend,]
+    filterset_fields = ('owner','member',)
+    # def get_queryset(self):
+    #     queryset = self.queryset
+    #     q1 = queryset.filter(owner = self.request.user)
+    #     return q1
     def perform_create(self, serializer):
-        data = self.request.data
-        project = None
-        if project in data:
-            project = data['project.title']
         serializer.save(owner=self.request.user)
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -63,21 +65,28 @@ class GroupViewSet(viewsets.ModelViewSet):
     """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (
-        permissions.IsAuthenticated,)
+    permission_classes = [
+        permissions.IsAuthenticated,
+          IsOwnerOrReadOnly,]
+    filter_backends = [filters.DjangoFilterBackend,]
+    filterset_fields = ('owner','member',)
+    # lookup_field = 'owner'
 
-    def get_owner(self):
-        queryset = self.queryset
-        owner = queryset.filter(owner = self.request.user)
-        return owner
 
-    def get_member(self):
-        queryset = self.queryset
-        member = queryset.filter(member = self.request.user)
-        return member
+    # def get_queryset(self):
+    #     queryset = Group.objects.filter(member=self.request.user)
+    #
+    #
+    #     return  queryset
+
+            # return queryset.filter(member=self.request.user)
+        # return owner and members
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+
+        serializer.save(owner=self.request.user,
+
+        )
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -87,10 +96,13 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (
+        permissions.AllowAny , )
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+class UserProfileViewSet(viewsets.ModelViewSet):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = (
         permissions.IsAuthenticated , )
-
-    def get_queryset(self):
-        queryset = self.queryset
-        query_set = queryset.filter( username=self.request.user)
-
-        return query_set

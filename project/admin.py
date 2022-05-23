@@ -20,8 +20,13 @@ class TaskAdmin(admin.ModelAdmin):
 @admin.register(Group)
 
 class GroupAdmin(admin.ModelAdmin):
-    fields = ['members']
-    list_display = ['title' ,'owner' ,'created' ,'active', 'project']
 
-    def get_members(self, obj):
-        return "\n".join([m.members for m in obj.members.all()])
+    list_display = ['title' ,'owner' ,'created' ,'active','active']
+
+    def get_member(self, obj):
+        return "\n".join([m.member for m in obj.member.all()])
+
+
+# @admin.register(Image)
+# class Image(admin.ModelAdmin):
+#     list_display = ['owner','file']
