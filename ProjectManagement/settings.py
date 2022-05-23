@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-
+import django_heroku
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -144,7 +144,7 @@ REST_FRAMEWORK = {
 
     ],
 
-    # 'DATETIME_FORMAT': "%m-%d-%YT%H:%M",
+    'DATETIME_FORMAT': "%m-%d-%YT%H:%M",
     "DATE_INPUT_FORMATS": ["%d-%m-%Y"],
     'PAGE_SIZE': 10,
     'DEFAULT_PAGINATION_CLASS':
@@ -152,5 +152,5 @@ REST_FRAMEWORK = {
 }
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
+django_heroku.settings(locals(), staticfiles=False)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
